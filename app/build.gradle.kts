@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,6 +21,15 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val secretsFile = project.rootProject.file("secrets.properties")
+        val properties = Properties()
+        if (secretsFile.exists()) {
+            properties.load(FileInputStream(secretsFile))
+        }
+
+        buildConfigField("String", "PLACES_API_KEY", "\"${properties.getProperty("PLACES_API_KEY")}\"")
+        resValue("string", "places_api_key", "\"${properties.getProperty("PLACES_API_KEY")}\"")
     }
 
     buildTypes {
@@ -37,6 +49,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -50,6 +63,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.play.services.location)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.places)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
